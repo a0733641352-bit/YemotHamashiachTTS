@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>העלאת קובץ TTS למספר הגבוה ביותר בשלוחה</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --primary: #2563eb;
+    --primary-light: #eff6ff;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --green-border: #bbf7d0;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --red-border: #fca5a5;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'Assistant', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 3rem 1rem;
+    line-height: 1.5;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  header p {
+    font-size: 15px;
+    color: var(--text-muted);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 540px) {
+    .fields { grid-template-columns: 1fr; }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field-full {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .field input[type="text"], .field input[type="password"] {
+    direction: ltr;
+    text-align: left;
+  }
+
+  .field textarea {
+    min-height: 120px;
+    resize: vertical;
+    direction: rtl;
+    text-align: right;
+  }
+
+  .field input:focus, .field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: #fff;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 1.5rem;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+  }
+
+  .btn:hover { background: #1d4ed8; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-msg {
+    margin-top: 1.25rem;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    border: 1px solid transparent;
+  }
+
+  .status-msg.success {
+    display: block;
+    background: var(--green-light);
+    border-color: var(--green-border);
+    color: var(--green);
+  }
+
+  .status-msg.error {
+    display: block;
+    background: var(--red-light);
+    border-color: var(--red-border);
+    color: var(--red);
+  }
+
+  .status-msg.info {
+    display: block;
+    background: var(--primary-light);
+    border-color: var(--border);
+    color: var(--primary);
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.8;
+  }
+
+  footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  footer a:hover {
+    text-decoration: underline;
+  }
+
+  .footer-links {
+    margin-top: 6px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🗣️ העלאת קובץ TTS חכם ממוספר</h1>
+    <p>סורק את כל סוגי הקבצים בשלוחה ומעלה קובץ .tts ממוספר הבא בתור (ללא קידומת)</p>
+  </header>
+
+  <div class="card">
+    <div class="fields">
+      <div class="field">
+        <label>מספר מערכת</label>
+        <input type="text" id="sys-num" placeholder="077777" required />
+      </div>
+      <div class="field">
+        <label>סיסמה</label>
+        <input type="password" id="sys-pass" placeholder="סיסמה" required />
+      </div>
+      <div class="field field-full">
+        <label>נתיב השלוחה (למשל: / או /1/2)</label>
+        <input type="text" id="target-path" value="/" placeholder="/" required />
+      </div>
+      <div class="field field-full">
+        <label>תוכן הטקסט להקראה (TTS)</label>
+        <textarea id="file-text" placeholder="הקלד כאן את תוכן ההקראה שיומר לשמע..." required></textarea>
+      </div>
+    </div>
+
+    <button class="btn" id="upload-btn" onclick="uploadHighestTtsSmart()">
+      <svg style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+      סרוק שלוחה והעלה קובץ TTS
+    </button>
+
+    <div class="status-msg" id="status-box"></div>
+  </div>
+
+  <footer>
+    <div>פותח ע"י <strong>אריה AI</strong></div>
+    <div class="footer-links">
+      <a href="https://mitmachim.top/user/%D7%90%D7%A8%D7%99%D7%94-ai" target="_blank">פרופיל במתמחים טופ</a>
+      <span>•</span>
+      <a href="https://f2.freeivr.co.il/user/%D7%90%D7%A8%D7%99%D7%94-ai" target="_blank">פרופיל בפורום ימות המשיח</a>
+      <span>•</span>
+      <a href="https://mail.google.com/mail/u/0/?fs=1&to=a0733641352@gmail.com&su=&tf=cm" target="_blank">יצירת קשר במייל</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+function showStatus(text, type) {
+  const box = document.getElementById('status-box');
+  box.textContent = text;
+  box.className = 'status-msg ' + type;
+}
+
+async function uploadHighestTtsSmart() {
+  const num = document.getElementById('sys-num').value.trim();
+  const pass = document.getElementById('sys-pass').value.trim();
+  let path = document.getElementById('target-path').value.trim();
+  const fileText = document.getElementById('file-text').value.trim();
+
+  if (!num || !pass || !path || !fileText) {
+    showStatus('נא למלא את כל השדות ולהזין טקסט לקובץ.', 'error');
+    return;
+  }
+
+  if (!path.startsWith('/')) path = '/' + path;
+  if (path.endsWith('/') && path !== '/') path = path.slice(0, -1);
+  
+  const token = num + ':' + pass;
+  const btn = document.getElementById('upload-btn');
+  btn.disabled = true;
+
+  showStatus('מנתח את קבצי השלוחה...', 'info');
+
+  let nextFileName = '1.tts'; // ברירת מחדל אם אין אף קובץ ממוספר
+
+  try {
+    // שלב 1: סריקת התיקייה
+    const dirUrl = `https://www.call2all.co.il/ym/api/GetIVR2Dir?token=${encodeURIComponent(token)}&path=${encodeURIComponent(path)}`;
+    const dirResponse = await fetch(dirUrl);
+    if (!dirResponse.ok) throw new Error('שגיאת תקשורת בבדיקת השלוחה');
+    
+    const dirData = await dirResponse.json();
+    
+    if (dirData.responseStatus === 'ERROR' || dirData.responseStatus === 'EXCEPTION') {
+      throw new Error(dirData.message || 'פרטי התחברות שגויים או שגיאה בגישה לשלוחה');
+    }
+
+    let maxNumber = -1;
+    const files = Array.isArray(dirData.files) ? dirData.files : [];
+
+    // סריקה חכמה: מחלץ מספרים מכל קובץ שמתחיל במספר, ללא קשר לסיומת (wav, tts, mp3 וכו')
+    files.forEach(f => {
+      const match = f.name.match(/^(\d+)\.[a-zA-Z0-9]+$/);
+      if (match) {
+        const numVal = parseInt(match[1], 10);
+        if (numVal > maxNumber) {
+          maxNumber = numVal;
+        }
+      }
+    });
+
+    // קביעת המספר הבא
+    if (maxNumber !== -1) {
+      maxNumber = maxNumber + 1;
+      nextFileName = maxNumber + '.tts';
+    }
+
+    showStatus(`המספר הגבוה שזוהה: ${maxNumber === -1 ? 0 : maxNumber - 1}. מעלה קובץ חדש: ${nextFileName}...`, 'info');
+
+    // שלב 2: העלאת הטקסט כקובץ .tts במספר החדש
+    const fullPath = 'ivr2:' + (path === '/' ? '' : path) + '/' + nextFileName;
+    const formData = new URLSearchParams();
+    formData.append('token', token);
+    formData.append('what', fullPath);
+    formData.append('contents', fileText);
+
+    const uploadResponse = await fetch('https://www.call2all.co.il/ym/api/UploadTextFile', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!uploadResponse.ok) throw new Error('שגיאת תקשורת בהעלאת הקובץ');
+
+    const uploadData = await uploadResponse.json();
+
+    if (uploadData.responseStatus === 'OK') {
+      showStatus(`✓ בהצלחה! הקובץ נוצר והועלה בשם: ${nextFileName}`, 'success');
+    } else {
+      showStatus('שגיאה מהשרת בהעלאה: ' + (uploadData.message || 'לא ידוע'), 'error');
+    }
+
+  } catch (error) {
+    showStatus('שגיאה: ' + error.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
